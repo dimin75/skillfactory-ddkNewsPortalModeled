@@ -1,0 +1,72 @@
+<!-- templates/home.html -->
+
+{% extends 'default.html' %}
+
+{% load my_filters %}
+
+{% block title %}
+Post
+{% endblock title %}
+
+{% block content %}
+    <h1>Welcome to the News List. All news is here:</h1>
+      <h3>
+          <table>
+          <tr>
+          <td>Recent news/</td>
+              <td><a href="/news/search">Поиск:</a></td>
+          </tr>
+          </table>
+      </h3>
+      {{ postList.title|censor }}
+      {% if postList %}
+        <ul>
+        <table>
+                  <tr>
+               <td>Статья:</td>
+                      <td>Действие 1</td>
+                      <td>Действие 2</td>
+               <td>Дата добавления:</td>
+               <td>Содерждание:</td>
+           </tr>
+        {% for record in postList %}
+                  <tr>
+                <p align="left">
+                    <td><a href="/news/{{ record.pk }}"> {{ record.title|censor }}</a></td>
+                    <td><a href="{% url 'post_edit' record.id %}"><u>Редактировать</u></a></td>
+                    <td><a href="{% url 'post_delete' record.id %}"><u>  Удалить </u></a></td>
+                    <td>{{ record.created_at|date:'d-m-Y H:i' }}</td>
+                    <td>{{ record.text|truncatechars:20|censor }}</td>
+                </p>
+                  </tr>
+        {% endfor %}
+            <tr>
+            </tr>
+        </table>
+        </ul>
+        <a href="{% url 'post_create' %}">Добавить новость</a> <br>
+        <hr>
+        {% if is_paginated %}
+            {% if page_obj.has_previous %}
+                <a href="?page=1">В начало</a>
+                <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <a>{{ num }}</a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">>>></a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">В конец</a>
+            {% endif %}
+
+        {% endif %}
+      {% else %}
+          <h3>Новостей нет =(</h3>
+      {% endif %}
+{% endblock %}
